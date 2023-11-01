@@ -1,8 +1,8 @@
-const countBs = (string) => {
+export const countBs = (string) => {
   return countChar(string, "B");
 };
 
-const countChar = (string, character) => {
+export const countChar = (string, character) => {
   const lengthOfString = string.length;
   let countNachi = 0;
   for (let i = 0; i < lengthOfString; i++) {
@@ -12,8 +12,3 @@ const countChar = (string, character) => {
   }
   return countNachi;
 };
-
-console.log(countBs("BBC"));
-// → 2
-console.log(countChar("kakkerlak", "k"));
-// → 4
