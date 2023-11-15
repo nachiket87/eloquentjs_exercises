@@ -38,7 +38,18 @@ interface Parcels {
   address: string;
 }
 
-class VillageState {
+interface State {
+  place: string;
+  parcels: Parcels[];
+  move: (destination: string) => State;
+}
+
+interface VillageConstructor {
+  new (): State;
+  random: () => State;
+}
+
+class VillageState implements State {
   place: string;
   parcels: Parcels[];
 
@@ -61,5 +72,96 @@ class VillageState {
     }
   }
 }
+const VillageTyped: VillageConstructor = VillageState as VillageConstructor;
 
-const villageState = new VillageState("Shop", [{ place: "Town Hall", address: "Town Hall" }]);
+const runRobot = (state: State, robot: any, memory: any) => {
+  for (let turn = 0; ; turn++) {
+    if (state.parcels.length == 0) {
+      console.log(`Done in ${turn} turns`);
+      break;
+    }
+    let action = robot(state, memory);
+    state = state.move(action.direction);
+    memory = action.memory;
+    console.log(`Moved to ${action.direction}`);
+  }
+};
+
+const robot = (state: State, memory: []) => {
+  return memory;
+};
+
+const randomPick = (array: any) => {
+  let choice = Math.floor(Math.random() * array.length);
+  return array[choice];
+};
+
+const randomRobot = (state: State) => {
+  return { direction: randomPick(roadGraph[state.place]) };
+};
+
+const mailRoute = [
+  "Alice's House",
+  "Cabin",
+  "Alice's House",
+  "Bob's House",
+  "Town Hall",
+  "Daria's House",
+  "Ernie's House",
+  "Grete's House",
+  "Shop",
+  "Grete's House",
+  "Farm",
+  "Marketplace",
+  "Post Office",
+];
+
+function routeRobot(state: State, memory) {
+  if (!memory) {
+    memory = new Array();
+  }
+  if (memory.length == 0) {
+    memory = mailRoute;
+  }
+  return { direction: memory[0], memory: memory.slice(1) };
+}
+
+VillageTyped.random = function (parcelCount = 5) {
+  let parcels = [];
+  for (let i = 0; i < parcelCount; i++) {
+    let address = randomPick(Object.keys(roadGraph));
+    let place;
+    do {
+      place = randomPick(Object.keys(roadGraph));
+    } while (place == address);
+    parcels.push({ place, address });
+  }
+  return new VillageState("Post Office", parcels);
+};
+
+runRobot(VillageTyped.random(), routeRobot, null);
+
+function findRoute(graph, from, to) {
+  let work = [{ at: from, route: [] }];
+  for (let i = 0; i < work.length; i++) {
+    let { at, route } = work[i];
+    for (let place of graph[at]) {
+      if (place == to) return route.concat(place);
+      if (!work.some((w) => w.at == place)) {
+        work.push({ at: place, route: route.concat(place) });
+      }
+    }
+  }
+}
+
+function goalOrientedRobot({ place, parcels }, route) {
+  if (route.length == 0) {
+    let parcel = parcels[0];
+    if (parcel.place != place) {
+      route = findRoute(roadGraph, place, parcel.place);
+    } else {
+      route = findRoute(roadGraph, place, parcel.address);
+    }
+  }
+  return { direction: route[0], memory: route.slice(1) };
+}
