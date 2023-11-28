@@ -1,0 +1,35 @@
+<p id="balloon">🎈</p>
+
+<script>
+  const balloon = document.getElementById("balloon");
+  window.addEventListener("keydown", (event) => {
+    const key = event.key;
+    if (key === "ArrowUp") {
+      inflate(balloon);
+    } else if (key === "ArrowDown") {
+      const balloonSize = balloon.style.fontSize.match(/(\d+)(\D+)/);
+      balloon.style.fontSize = `${parseInt(balloonSize[1]) - 25}${balloonSize[2]}`;
+    } else {
+      balloon.style.fontSize = "12px";
+    }
+  });
+  let start;
+  const inflate = (timeStamp) => {
+    if (start === undefined) {
+      start = timeStamp;
+    }
+    const elapsed = timeStamp - start;
+    if (balloon.style.fontSize) {
+      const balloonSize = balloon.style.fontSize.match(/(\d+)(\D+)/);
+      balloon.style.fontSize = `${parseInt(balloonSize[1]) + 25}${balloonSize[2]}`;
+    } else {
+      balloon.style.fontSize = "25px";
+    }
+    console.log(elapsed);
+    if (elapsed < 5000) {
+      window.requestAnimationFrame(inflate);
+    }
+  };
+
+  window.requestAnimationFrame(inflate);
+</script>
