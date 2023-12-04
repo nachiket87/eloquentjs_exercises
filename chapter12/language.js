@@ -1,4 +1,4 @@
-function parseExpression(program) {
+const parseExpression = (program) => {
   program = skipSpace(program);
   let match, expr;
   if ((match = /^"([^"]*)"/.exec(program))) {
@@ -12,7 +12,7 @@ function parseExpression(program) {
   }
 
   return parseApply(expr, program.slice(match[0].length));
-}
+};
 
 function skipSpace(string) {
   let first = string.search(/\S/);
